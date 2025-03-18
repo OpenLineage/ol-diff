@@ -81,16 +81,14 @@ public class OutputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
-    Map<String, Object> checkedPrevProperties = prevFacet
-        .getAdditionalProperties()
-        .entrySet()
-        .stream()
-        .filter(e -> Optional
-            .ofNullable(context.getConfig().getDataset())
-            .filter(m -> m.containsKey(facetName))
-            .isEmpty()
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    Map<String, Object> checkedPrevProperties =
+        prevFacet.getAdditionalProperties().entrySet().stream()
+            .filter(
+                e ->
+                    Optional.ofNullable(context.getConfig().getDataset())
+                        .filter(m -> m.containsKey(facetName))
+                        .isEmpty())
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev output facet additional properties")
@@ -116,16 +114,14 @@ public class OutputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
-    Map<String, Object> checkedPrevProperties = prevFacet
-        .getAdditionalProperties()
-        .entrySet()
-        .stream()
-        .filter(e -> Optional
-            .ofNullable(context.getConfig().getOutputDataset())
-            .filter(m -> m.containsKey(facetName))
-            .isEmpty()
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    Map<String, Object> checkedPrevProperties =
+        prevFacet.getAdditionalProperties().entrySet().stream()
+            .filter(
+                e ->
+                    Optional.ofNullable(context.getConfig().getOutputDataset())
+                        .filter(m -> m.containsKey(facetName))
+                        .isEmpty())
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev output facet additional properties")
@@ -148,7 +144,8 @@ public class OutputDatasetsCase {
                               entry.getValue().stream()
                                   .filter(
                                       facet ->
-                                          Optional.ofNullable(context.getConfig().getOutputDataset())
+                                          Optional.ofNullable(
+                                                  context.getConfig().getOutputDataset())
                                               .filter(m -> m.containsKey(facet))
                                               .filter(m -> m.get(facet).isDisabled())
                                               .isEmpty())
@@ -193,7 +190,8 @@ public class OutputDatasetsCase {
                                   .map(
                                       facetName ->
                                           Arguments.of(
-                                              Named.of("Run: " + sparkActionId.prevRunId ,datasetHelper),
+                                              Named.of(
+                                                  "Run: " + sparkActionId.prevRunId, datasetHelper),
                                               Named.of(
                                                   "dataset " + entry.getKey().getName(),
                                                   entry.getKey()),

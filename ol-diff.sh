@@ -16,7 +16,7 @@ usage() {
   echo
   title "EXAMPLES:"
   echo "  $ ./ol-diff.sh --prev examples/failure/prev.txt --next examples/failure/next.txt "
-  echo "  $ ./ol-diff.sh --prev examples/success/prev.txt --next examples/success/next.txt "
+  echo "  $ ./ol-diff.sh --prev examples/success/prev.txt --next examples/success/next.txt --output output/dir"
   echo "  $ ./ol-diff.sh --prev examples/success/prev.txt --next examples/success/next.txt --config config.yml "
   echo
   title "ARGUMENTS:"
@@ -40,6 +40,10 @@ while [ $# -gt 0 ]; do
     --config)
        shift
        CONF="${1}"
+       ;;
+    --output)
+       shift
+       OUTPUT="${1}"
        ;;
     -h|--help)
        usage
@@ -67,4 +71,12 @@ then
 fi
 
 docker run --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:jdk17-ubi  gradle clean test -Pprev.path=$PREV -Pnext.path=$NEXT -Pconfig=$CONF
-open build/reports/tests/test/index.html
+
+if test "$OUTPUT"
+then
+  if [ ! -d "$OUTPUT" ]; then
+    mkdir -p  "$OUTPUT";
+  fi
+  mv build/reports/tests "$OUTPUT";
+fi
+open "$OUTPUT"/tests/test/index.html

@@ -31,8 +31,7 @@ public class Config {
   static class FacetConfig {
     Boolean disabled;
 
-    @Getter
-    String[] ignoredProperties;
+    @Getter String[] ignoredProperties;
 
     public boolean isDisabled() {
       return disabled != null && disabled;

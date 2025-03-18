@@ -86,16 +86,14 @@ public class JobDiffCase {
             "Next job facets should contain prev job prevFacet: " + prevFacetName)
         .isNotNull();
 
-    Map<String, Object> checkedPrevProperties = prevFacet
-        .getAdditionalProperties()
-        .entrySet()
-        .stream()
-        .filter(e -> Optional
-            .ofNullable(context.getConfig().getJob())
-            .filter(m -> m.containsKey(prevFacetName))
-            .isEmpty()
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    Map<String, Object> checkedPrevProperties =
+        prevFacet.getAdditionalProperties().entrySet().stream()
+            .filter(
+                e ->
+                    Optional.ofNullable(context.getConfig().getJob())
+                        .filter(m -> m.containsKey(prevFacetName))
+                        .isEmpty())
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev job facet additional properties")

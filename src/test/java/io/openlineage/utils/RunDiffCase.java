@@ -42,16 +42,14 @@ public class RunDiffCase {
             "Next run facets should contain prev run prevFacet: " + prevFacetName)
         .isNotNull();
 
-    Map<String, Object> checkedPrevProperties = prevFacet
-        .getAdditionalProperties()
-        .entrySet()
-        .stream()
-        .filter(e -> Optional
-            .ofNullable(context.getConfig().getRun())
-            .filter(m -> m.containsKey(prevFacetName))
-            .isEmpty()
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    Map<String, Object> checkedPrevProperties =
+        prevFacet.getAdditionalProperties().entrySet().stream()
+            .filter(
+                e ->
+                    Optional.ofNullable(context.getConfig().getRun())
+                        .filter(m -> m.containsKey(prevFacetName))
+                        .isEmpty())
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev run {} facet additional properties", runDesc)

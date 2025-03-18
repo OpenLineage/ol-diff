@@ -62,11 +62,11 @@ public class Context {
 
   @SneakyThrows
   public static List<RunEvent> getRunEvents(String path) {
-    boolean containsJsons= Files
-        .lines(Path.of(path))
-        .filter(line -> line.trim().startsWith("{") && !line.contains(CONSOLE_TRANSPORT_LOG))
-        .findFirst()
-        .isPresent();
+    boolean containsJsons =
+        Files.lines(Path.of(path))
+            .filter(line -> line.trim().startsWith("{") && !line.contains(CONSOLE_TRANSPORT_LOG))
+            .findFirst()
+            .isPresent();
 
     if (containsJsons) {
       log.info("Loading run events from jsons");
