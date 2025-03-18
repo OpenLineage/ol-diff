@@ -8,7 +8,6 @@ package io.openlineage.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.openlineage.client.OpenLineage.RunFacet;
-import io.openlineage.utils.Config.IgnoredFacets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,10 +54,10 @@ public class RunDiffCase {
               arguments.addAll(
                   runHelper.prevMergedFacets().entrySet().stream()
                       .filter(
-                          e ->
-                              Optional.ofNullable(context.getConfig().getIgnoredFacets())
-                                  .map(IgnoredFacets::getRunFacets)
-                                  .filter(ignoredFacets -> ignoredFacets.contains(e.getKey()))
+                          facet ->
+                              Optional.ofNullable(context.getConfig().getRun())
+                                  .filter(m -> m.containsKey(facet.getKey()))
+                                  .filter(m -> m.get(facet.getKey()).isDisabled())
                                   .isEmpty())
                       .map(
                           e ->

@@ -8,7 +8,6 @@ package io.openlineage.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.openlineage.client.OpenLineage.JobFacet;
-import io.openlineage.utils.Config.IgnoredFacets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -102,10 +101,10 @@ public class JobDiffCase {
               Set<Arguments> collected =
                   jobHelper.prevMergedFacets().entrySet().stream()
                       .filter(
-                          e ->
-                              Optional.ofNullable(context.getConfig().getIgnoredFacets())
-                                  .map(IgnoredFacets::getJobFacets)
-                                  .filter(ignoredFacets -> ignoredFacets.contains(e.getKey()))
+                          facet ->
+                              Optional.ofNullable(context.getConfig().getRun())
+                                  .filter(m -> m.containsKey(facet.getKey()))
+                                  .filter(m -> m.get(facet.getKey()).isDisabled())
                                   .isEmpty())
                       .map(
                           e ->

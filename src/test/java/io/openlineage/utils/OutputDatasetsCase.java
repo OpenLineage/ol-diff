@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.openlineage.client.OpenLineage.DatasetFacet;
 import io.openlineage.client.OpenLineage.OutputDatasetFacet;
 import io.openlineage.client.utils.DatasetIdentifier;
-import io.openlineage.utils.Config.IgnoredFacets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -125,11 +124,9 @@ public class OutputDatasetsCase {
                               entry.getValue().stream()
                                   .filter(
                                       facet ->
-                                          Optional.ofNullable(
-                                                  context.getConfig().getIgnoredFacets())
-                                              .map(IgnoredFacets::getOutputDatasetFacets)
-                                              .filter(
-                                                  ignoredFacets -> ignoredFacets.contains(facet))
+                                          Optional.ofNullable(context.getConfig().getOutputDataset())
+                                              .filter(m -> m.containsKey(facet))
+                                              .filter(m -> m.get(facet).isDisabled())
                                               .isEmpty())
                                   .map(
                                       facetName ->
@@ -165,11 +162,9 @@ public class OutputDatasetsCase {
                               entry.getValue().stream()
                                   .filter(
                                       facet ->
-                                          Optional.ofNullable(
-                                                  context.getConfig().getIgnoredFacets())
-                                              .map(IgnoredFacets::getDatasetFacets)
-                                              .filter(
-                                                  ignoredFacets -> ignoredFacets.contains(facet))
+                                          Optional.ofNullable(context.getConfig().getDataset())
+                                              .filter(m -> m.containsKey(facet))
+                                              .filter(m -> m.get(facet).isDisabled())
                                               .isEmpty())
                                   .map(
                                       facetName ->

@@ -1,6 +1,22 @@
-ignoredFacets:
-  runFacets: ['someFacet', 'someOtherFacet']
-  jobFacets: []
-  inputDatasetFacets: []
-  outputDatasetFacets: []
-  datasetFacets: []
+run:
+  someFacet:
+    # Disables the facet
+    disabled: true
+  spark_properties:
+    disabled: false
+    # Ignores verification the following of facet properties
+    ignoredProperties: ['spark.master']
+job:
+  someFacet:
+    disabled: true
+  someOtherFacet:
+    disabled: true
+dataset:
+  someFacet:
+    disabled: true
+inputDataset:
+  someFacet:
+    disabled: true
+outputDataset:
+  someFacet:
+    disabled: true

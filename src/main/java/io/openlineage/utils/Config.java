@@ -1,6 +1,7 @@
 package io.openlineage.utils;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,16 +11,31 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Config {
 
-  IgnoredFacets ignoredFacets;
+  @JsonProperty("dataset")
+  Map<String, FacetConfig> dataset;
 
-  @Getter
+  @JsonProperty("job")
+  Map<String, FacetConfig> job;
+
+  @JsonProperty("run")
+  Map<String, FacetConfig> run;
+
+  @JsonProperty("inputDataset")
+  Map<String, FacetConfig> inputDataset;
+
+  @JsonProperty("outputDataset")
+  Map<String, FacetConfig> outputDataset;
+
   @Setter
   @NoArgsConstructor
-  static class IgnoredFacets {
-    List<String> runFacets;
-    List<String> jobFacets;
-    List<String> inputDatasetFacets;
-    List<String> outputDatasetFacets;
-    List<String> datasetFacets;
+  static class FacetConfig {
+    Boolean disabled;
+
+    @Getter
+    String[] ignoredProperties;
+
+    public boolean isDisabled() {
+      return disabled != null && disabled;
+    }
   }
 }
