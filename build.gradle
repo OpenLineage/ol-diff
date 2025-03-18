@@ -1,0 +1,81 @@
+/*
+/* Copyright 2018-2025 contributors to the OpenLineage project
+/* SPDX-License-Identifier: Apache-2.0
+*/
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "8.12.2"
+    id 'com.diffplug.spotless' version '7.0.2'
+}
+
+group = "io.openlineage.utils"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    junit5Version = '5.11.4'
+    lombokVersion = '1.18.36'
+    assertjVersion = '3.27.3'
+    jacksonVersion = "2.15.3"
+
+    prevPath = project.findProperty("prev.path").toString()
+    nextPath = project.findProperty("next.path").toString()
+    configYaml = project.findProperty("config").toString()
+    interntalTests = Boolean.parseBoolean(project.findProperty("internal.tests").toString())
+}
+
+dependencies {
+    implementation "io.openlineage:openlineage-java:+"
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    compileOnly "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    compileOnly "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    compileOnly "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
+    compileOnly "org.slf4j:slf4j-api:2.0.17"
+
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testImplementation "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation("org.slf4j:slf4j-api:2.0.17")
+    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junit5Version}"
+}
+
+spotless {
+    java {
+        target fileTree('.') {
+            include '**/*.java'
+        }
+        googleJavaFormat()
+        removeUnusedImports()
+    }
+}
+
+compileJava {
+    options.incremental = true
+    options.compilerArgs << '-parameters'
+    options.encoding = "UTF-8"
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+test {
+    useJUnitPlatform {
+        if (!interntalTests) {
+            excludeTags "internal-test"
+        }
+    }
+
+    systemProperty("prev.path", prevPath)
+    systemProperty("next.path", nextPath)
+    systemProperty("configYaml", configYaml)
+}

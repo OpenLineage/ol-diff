@@ -1,0 +1,6 @@
+ignoredFacets:
+  runFacets: ['someFacet', 'someOtherFacet']
+  jobFacets: []
+  inputDatasetFacets: []
+  outputDatasetFacets: []
+  datasetFacets: []
