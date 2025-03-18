@@ -10,7 +10,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.openlineage.client.OpenLineage.RunFacet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -39,9 +42,20 @@ public class RunDiffCase {
             "Next run facets should contain prev run prevFacet: " + prevFacetName)
         .isNotNull();
 
+    Map<String, Object> checkedPrevProperties = prevFacet
+        .getAdditionalProperties()
+        .entrySet()
+        .stream()
+        .filter(e -> Optional
+            .ofNullable(context.getConfig().getRun())
+            .filter(m -> m.containsKey(prevFacetName))
+            .isEmpty()
+        )
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev run {} facet additional properties", runDesc)
-        .containsAllEntriesOf(prevFacet.getAdditionalProperties());
+        .containsAllEntriesOf(checkedPrevProperties);
   }
 
   private static Stream<Arguments> prevRunFacets() {

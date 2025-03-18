@@ -38,13 +38,10 @@ This will start Gradle docker container and run the tests.
 *  **Application events verification** 
    * TODO 
 
-### Datasets verification
-
 ## Future work
 
 TODO: 
- * Check application events - and their facets,
- * Ability to ignore comparison on certain facets fields.
+ * Check application events - and their facets.
 
 ## Development
 

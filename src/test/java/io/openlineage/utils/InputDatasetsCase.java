@@ -12,6 +12,8 @@ import io.openlineage.client.OpenLineage.InputDatasetFacet;
 import io.openlineage.client.utils.DatasetIdentifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,9 +81,20 @@ public class InputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
+    Map<String, Object> checkedPrevProperties = prevFacet
+        .getAdditionalProperties()
+        .entrySet()
+        .stream()
+        .filter(e -> Optional
+            .ofNullable(context.getConfig().getDataset())
+            .filter(m -> m.containsKey(facetName))
+            .isEmpty()
+        )
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev input facet additional properties")
-        .containsAllEntriesOf(prevFacet.getAdditionalProperties());
+        .containsAllEntriesOf(checkedPrevProperties);
   }
 
   @ParameterizedTest
@@ -103,9 +116,20 @@ public class InputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
+    Map<String, Object> checkedPrevProperties = prevFacet
+        .getAdditionalProperties()
+        .entrySet()
+        .stream()
+        .filter(e -> Optional
+            .ofNullable(context.getConfig().getInputDataset())
+            .filter(m -> m.containsKey(facetName))
+            .isEmpty()
+        )
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev input facet additional properties")
-        .containsAllEntriesOf(prevFacet.getAdditionalProperties());
+        .containsAllEntriesOf(checkedPrevProperties);
   }
 
   private static Stream<Arguments> prevInputFacets() {

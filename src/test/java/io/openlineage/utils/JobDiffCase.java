@@ -11,6 +11,8 @@ import io.openlineage.client.OpenLineage.JobFacet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,9 +86,20 @@ public class JobDiffCase {
             "Next job facets should contain prev job prevFacet: " + prevFacetName)
         .isNotNull();
 
+    Map<String, Object> checkedPrevProperties = prevFacet
+        .getAdditionalProperties()
+        .entrySet()
+        .stream()
+        .filter(e -> Optional
+            .ofNullable(context.getConfig().getJob())
+            .filter(m -> m.containsKey(prevFacetName))
+            .isEmpty()
+        )
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
     assertThat(nextFacet.getAdditionalProperties())
         .describedAs("Prev job facet additional properties")
-        .containsAllEntriesOf(prevFacet.getAdditionalProperties());
+        .containsAllEntriesOf(checkedPrevProperties);
   }
 
   private static Stream<Arguments> prevJobFacets() {
