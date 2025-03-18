@@ -109,7 +109,7 @@ public class OutputDatasetHelperTest {
     prevEvents.add(
         openLineage
             .newRunEventBuilder()
-            .run(openLineage.newRunBuilder().runId(sparkActionId.prevRunId).build())
+            //.run(openLineage.newRunBuilder().runId(sparkActionId.prevRunId).build())
             .inputs(
                 Collections.singletonList(
                     openLineage.newInputDataset(

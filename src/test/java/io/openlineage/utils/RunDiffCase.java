@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("Verify run facets")
 public class RunDiffCase {
+
+  private static Context context;
+
+  @BeforeAll
+  static void setup() {
+    context = Context.loadContext();
+  }
 
   @ParameterizedTest
   @MethodSource("prevRunFacets")
@@ -39,7 +47,6 @@ public class RunDiffCase {
 
   private static Stream<Arguments> prevRunFacets() {
     List<Arguments> arguments = new ArrayList<>();
-    Context context = Context.loadContext();
     context
         .getSparkActionsIds()
         .forEach(
