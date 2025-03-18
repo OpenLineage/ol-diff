@@ -89,6 +89,12 @@ public class Context {
     for (String line : lines) {
       boolean isLogLine = line.matches("\\d\\d/\\d\\d/\\d\\d.*");
       if (line.contains(CONSOLE_TRANSPORT_LOG)) {
+        if (inEvent) {
+          // ending the previous event events are present line by line
+          log.info("Whole event detected: {}", json.toString());
+          events.add(OpenLineageClientUtils.runEventFromJson(json.toString()));
+        }
+
         log.info("Starting new event");
         inEvent = true;
         json = new StringBuilder();
@@ -102,7 +108,7 @@ public class Context {
             events.add(OpenLineageClientUtils.runEventFromJson(json.toString()));
             inEvent = false;
 
-            // see if the new linea is not starting a new event
+            // see if the new line is not starting a new event
             if (line.contains(CONSOLE_TRANSPORT_LOG)) {
               log.info("Starting new event");
               inEvent = true;
