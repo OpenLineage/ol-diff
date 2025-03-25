@@ -78,5 +78,7 @@ then
     mkdir -p  "$OUTPUT";
   fi
   mv build/reports/tests "$OUTPUT";
+  open "$OUTPUT"/tests/test/index.html
+else
+  open build/reports/tests/test/index.html
 fi
-open "$OUTPUT"/tests/test/index.html

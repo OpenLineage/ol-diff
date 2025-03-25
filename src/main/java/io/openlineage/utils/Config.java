@@ -36,5 +36,17 @@ public class Config {
     public boolean isDisabled() {
       return disabled != null && disabled;
     }
+
+    public boolean isPropertyIgnored(String property) {
+      if (ignoredProperties == null) {
+        return false;
+      }
+      for (String ignoredProperty : ignoredProperties) {
+        if (ignoredProperty.equals(property)) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 }

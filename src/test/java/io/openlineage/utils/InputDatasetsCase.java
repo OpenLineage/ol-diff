@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.openlineage.client.OpenLineage.DatasetFacet;
 import io.openlineage.client.OpenLineage.InputDatasetFacet;
 import io.openlineage.client.utils.DatasetIdentifier;
+import io.openlineage.utils.Config.FacetConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
@@ -26,6 +28,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("Verify input dataset facets")
+@Slf4j
 public class InputDatasetsCase {
 
   private static Context context;
@@ -81,13 +84,14 @@ public class InputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
+    Optional<FacetConfig> facetConfig =
+        Optional.ofNullable(context.getConfig().getDataset()).map(m -> m.get(facetName));
     Map<String, Object> checkedPrevProperties =
-        prevFacet.getAdditionalProperties().entrySet().stream()
-            .filter(
-                e ->
-                    Optional.ofNullable(context.getConfig().getDataset())
-                        .filter(m -> m.containsKey(facetName))
-                        .isEmpty())
+        prevFacet
+            .getAdditionalProperties()
+            .entrySet()
+            .stream()
+            .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
@@ -114,17 +118,19 @@ public class InputDatasetsCase {
         .overridingErrorMessage("Next facets should contain facet: " + facetName)
         .isNotNull();
 
+    Optional<FacetConfig> facetConfig =
+        Optional.ofNullable(context.getConfig().getInputDataset()).map(m -> m.get(facetName));
+    log.info("FacetConfig: {} {}", facetName, facetConfig);
     Map<String, Object> checkedPrevProperties =
-        prevFacet.getAdditionalProperties().entrySet().stream()
-            .filter(
-                e ->
-                    Optional.ofNullable(context.getConfig().getInputDataset())
-                        .filter(m -> m.containsKey(facetName))
-                        .isEmpty())
+        prevFacet
+            .getAdditionalProperties()
+            .entrySet()
+            .stream()
+            .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
-        .describedAs("Prev input facet additional properties")
+        .describedAs("Prev input facet additional properties {}", facetName)
         .containsAllEntriesOf(checkedPrevProperties);
   }
 

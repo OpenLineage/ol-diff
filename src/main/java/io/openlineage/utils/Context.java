@@ -62,17 +62,16 @@ public class Context {
 
   @SneakyThrows
   public static List<RunEvent> getRunEvents(String path) {
-    boolean containsJsons =
+    boolean containsLogs =
         Files.lines(Path.of(path))
-            .filter(line -> line.trim().startsWith("{") && !line.contains(CONSOLE_TRANSPORT_LOG))
-            .findFirst()
-            .isPresent();
+            // none of the lines starts as log pattern
+            .anyMatch(line -> !line.matches("\\d\\d/\\d\\d/\\d\\d.*"));
 
-    if (containsJsons) {
-      log.info("Loading run events from jsons");
+    if (!containsLogs) {
+      log.info("Loading run events from jsons: {}", path);
       return getRunEventsFromJsons(path);
     } else {
-      log.info("Loading run events from logs");
+      log.info("Loading run events from logs: {}", path);
       return getRunEventsFromLogs(path);
     }
   }
@@ -151,7 +150,7 @@ public class Context {
             .collect(Collectors.toList());
 
     if (prevUuids.size() != nextUuids.size()) {
-      log.warn("Different number of spark actions in the previous and next run");
+      log.warn("Different number of spark actions in the previous and next run: {} {}", prevUuids, nextUuids);
       return Collections.emptyList();
     }
 

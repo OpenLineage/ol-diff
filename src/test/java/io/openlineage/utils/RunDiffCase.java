@@ -8,6 +8,7 @@ package io.openlineage.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.openlineage.client.OpenLineage.RunFacet;
+import io.openlineage.utils.Config.FacetConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,13 +43,14 @@ public class RunDiffCase {
             "Next run facets should contain prev run prevFacet: " + prevFacetName)
         .isNotNull();
 
+    Optional<FacetConfig> facetConfig =
+        Optional.ofNullable(context.getConfig().getRun()).map(m -> m.get(prevFacetName));
     Map<String, Object> checkedPrevProperties =
-        prevFacet.getAdditionalProperties().entrySet().stream()
-            .filter(
-                e ->
-                    Optional.ofNullable(context.getConfig().getRun())
-                        .filter(m -> m.containsKey(prevFacetName))
-                        .isEmpty())
+        prevFacet
+            .getAdditionalProperties()
+            .entrySet()
+            .stream()
+            .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     assertThat(nextFacet.getAdditionalProperties())
