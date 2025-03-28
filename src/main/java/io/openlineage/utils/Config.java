@@ -26,6 +26,9 @@ public class Config {
   @JsonProperty("outputDataset")
   Map<String, FacetConfig> outputDataset;
 
+  @JsonProperty("excludeApplicationEvents")
+  boolean excludeApplicationEvents;
+
   @Setter
   @NoArgsConstructor
   static class FacetConfig {

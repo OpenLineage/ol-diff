@@ -36,7 +36,8 @@ This will start Gradle docker container and run the tests.
    * Verifies both connectors detect exact set of datasets.
    * For each dataset, it verifies input facets, output facets and facets. For each facet in previous version, it verifies if the fields from previous version are present in the next version. New facets or fields are accepted.
 *  **Application events verification** 
-   * TODO 
+   * Currently a flag is added to ignore application events.
+   * Otherwise application events are compared in the same way as jobs and runs, although behaviour was not tested.
 
 ## Future work
 

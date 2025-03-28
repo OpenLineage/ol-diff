@@ -7,8 +7,12 @@ package io.openlineage.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.openlineage.client.OpenLineage.ParentRunFacet;
+import io.openlineage.client.OpenLineage.ParentRunFacetRun;
+import io.openlineage.client.OpenLineage.Run;
 import io.openlineage.client.OpenLineage.RunEvent;
 import io.openlineage.client.OpenLineage.RunEvent.EventType;
+import io.openlineage.client.OpenLineage.RunFacets;
 import io.openlineage.client.OpenLineageClientUtils;
 import java.io.File;
 import java.nio.file.Files;
@@ -16,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -131,22 +136,27 @@ public class Context {
   }
 
   public List<SparkActionId> getSparkActionsIds() {
+    List<UUID> prevAppUuids = getApplicationRunIds(prevEvents);
     List<UUID> prevUuids =
         prevEvents.stream()
             .filter(e -> EventType.START.equals(e.getEventType())) // get start event
             .map(e -> e.getRun().getRunId())
+            .filter(e -> !prevAppUuids.contains(e))
             .collect(Collectors.toList());
 
     List<String> prevJobs =
         prevEvents.stream()
             .filter(e -> EventType.START.equals(e.getEventType())) // get start event
+            .filter(e -> !prevAppUuids.contains(e.getRun().getRunId()))
             .map(e -> e.getJob().getName())
             .collect(Collectors.toList());
 
+    List<UUID> nextAppUuids = getApplicationRunIds(nextEvents);
     List<UUID> nextUuids =
         nextEvents.stream()
             .filter(e -> EventType.START.equals(e.getEventType())) // get start event
             .map(e -> e.getRun().getRunId())
+            .filter(e -> !nextAppUuids.contains(e))
             .collect(Collectors.toList());
 
     if (prevUuids.size() != nextUuids.size()) {
@@ -167,5 +177,23 @@ public class Context {
       log.warn("No spark actions found in the previous and next run");
     }
     return actionIds;
+  }
+
+  private List<UUID> getApplicationRunIds(List<RunEvent> events) {
+    if (!config.isExcludeApplicationEvents()) {
+      return Collections.emptyList();
+    }
+    return events
+        .stream()
+        .map(RunEvent::getRun)
+        .map(Run::getFacets)
+        .filter(Objects::nonNull)
+        .map(RunFacets::getParent)
+        .filter(Objects::nonNull)
+        .map(ParentRunFacet::getRun)
+        .filter(Objects::nonNull)
+        .map(ParentRunFacetRun::getRunId)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 }

@@ -1,3 +1,4 @@
+excludeApplicationEvents: true
 run:
   someFacet:
     # Disables the facet
@@ -6,17 +7,16 @@ run:
     disabled: false
     # Ignores verification the following of facet properties
     ignoredProperties: ['spark.master']
+  parent:
+    ignoredProperties: ['run']
 job:
   someFacet:
     disabled: true
   someOtherFacet:
     disabled: true
 dataset:
-  someFacet:
-    disabled: true
-inputDataset:
-  someFacet:
-    disabled: true
+  version:
+    ignoredProperties: [ 'datasetVersion' ]
 outputDataset:
   someFacet:
     disabled: true
