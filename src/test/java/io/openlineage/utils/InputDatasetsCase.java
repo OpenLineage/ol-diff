@@ -46,14 +46,14 @@ public class InputDatasetsCase {
         context.getPrevEvents().stream()
             .filter(e -> sparkActionId.prevRunId.equals(e.getRun().getRunId()))
             .flatMap(e -> e.getInputs().stream())
-            .map(d -> new DatasetIdentifier(d.getNamespace(), d.getName()))
+            .map(d -> new DatasetIdentifier(d.getName(), d.getNamespace()))
             .collect(Collectors.toSet());
 
     Set<DatasetIdentifier> nextIdentifiers =
         context.getNextEvents().stream()
             .filter(e -> sparkActionId.nextRunId.equals(e.getRun().getRunId()))
             .flatMap(e -> e.getInputs().stream())
-            .map(d -> new DatasetIdentifier(d.getNamespace(), d.getName()))
+            .map(d -> new DatasetIdentifier(d.getName(), d.getNamespace()))
             .collect(Collectors.toSet());
 
     assertThat(nextIdentifiers)
