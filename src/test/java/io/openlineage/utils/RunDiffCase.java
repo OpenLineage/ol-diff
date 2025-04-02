@@ -46,10 +46,7 @@ public class RunDiffCase {
     Optional<FacetConfig> facetConfig =
         Optional.ofNullable(context.getConfig().getRun()).map(m -> m.get(prevFacetName));
     Map<String, Object> checkedPrevProperties =
-        prevFacet
-            .getAdditionalProperties()
-            .entrySet()
-            .stream()
+        prevFacet.getAdditionalProperties().entrySet().stream()
             .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 

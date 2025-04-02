@@ -7,6 +7,7 @@ package io.openlineage.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.openlineage.client.OpenLineage.Dataset;
 import io.openlineage.client.OpenLineage.DatasetFacet;
 import io.openlineage.client.OpenLineage.InputDatasetFacet;
 import io.openlineage.client.utils.DatasetIdentifier;
@@ -42,26 +43,41 @@ public class InputDatasetsCase {
   @MethodSource("sparkActionIds")
   @DisplayName("Verify input dataset names and namespaces")
   void verifyInputNames(SparkActionId sparkActionId) {
-    Set<DatasetIdentifier> prevIdentifiers =
+    Set<Dataset> prev =
         context.getPrevEvents().stream()
             .filter(e -> sparkActionId.prevRunId.equals(e.getRun().getRunId()))
             .flatMap(e -> e.getInputs().stream())
-            .map(d -> new DatasetIdentifier(d.getName(), d.getNamespace()))
             .collect(Collectors.toSet());
 
-    Set<DatasetIdentifier> nextIdentifiers =
+    Set<Dataset> next =
         context.getNextEvents().stream()
             .filter(e -> sparkActionId.nextRunId.equals(e.getRun().getRunId()))
             .flatMap(e -> e.getInputs().stream())
-            .map(d -> new DatasetIdentifier(d.getName(), d.getNamespace()))
             .collect(Collectors.toSet());
 
-    assertThat(nextIdentifiers)
-        .describedAs("Prev and next should detect the same number of datasets")
-        .hasSize(prevIdentifiers.size());
-    assertThat(nextIdentifiers)
-        .describedAs("Prev and next should have same datasets identified")
-        .containsAll(prevIdentifiers);
+    // check all from prev are in next
+    for (Dataset dataset : prev) {
+      // for each prev dataset there should be a next dataset
+      boolean found = false;
+      for (Dataset el : next) {
+        found = found || DatasetUtils.areSameName(dataset, el);
+      }
+      assertThat(found)
+          .describedAs("Dataset should have the same name {}", dataset.getName())
+          .isTrue();
+    }
+
+    // check the opposite way
+    for (Dataset dataset : next) {
+      // for each prev dataset there should be a next dataset
+      boolean found = false;
+      for (Dataset el : prev) {
+        found = found || DatasetUtils.areSameName(dataset, el);
+      }
+      assertThat(found)
+          .describedAs("Dataset should have the same name {}", dataset.getName())
+          .isTrue();
+    }
   }
 
   @ParameterizedTest
@@ -87,10 +103,7 @@ public class InputDatasetsCase {
     Optional<FacetConfig> facetConfig =
         Optional.ofNullable(context.getConfig().getDataset()).map(m -> m.get(facetName));
     Map<String, Object> checkedPrevProperties =
-        prevFacet
-            .getAdditionalProperties()
-            .entrySet()
-            .stream()
+        prevFacet.getAdditionalProperties().entrySet().stream()
             .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
@@ -122,10 +135,7 @@ public class InputDatasetsCase {
         Optional.ofNullable(context.getConfig().getInputDataset()).map(m -> m.get(facetName));
     log.info("FacetConfig: {} {}", facetName, facetConfig);
     Map<String, Object> checkedPrevProperties =
-        prevFacet
-            .getAdditionalProperties()
-            .entrySet()
-            .stream()
+        prevFacet.getAdditionalProperties().entrySet().stream()
             .filter(e -> facetConfig.map(f -> !f.isPropertyIgnored(e.getKey())).orElse(true))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 

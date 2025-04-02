@@ -47,9 +47,9 @@ public class JobDiffCase {
         .describedAs("Set of job names from next events. Should contain a single job name")
         .hasSize(1);
 
-    assertThat(jobHelper.prevNames().get(0))
-        .describedAs("Prev job name")
-        .isEqualTo(jobHelper.nextNames().get(0));
+    assertThat(jobHelper.nextNames().get(0))
+        .describedAs("Next job name")
+        .isEqualTo(jobHelper.prevNames().get(0));
   }
 
   @DisplayName("Verifies identical job namespace")
@@ -67,9 +67,9 @@ public class JobDiffCase {
             "Set of job namespaces from next events. Should contain a single job namespace")
         .hasSize(1);
 
-    assertThat(jobHelper.prevNamespaces().get(0))
-        .describedAs("Prev job name")
-        .isEqualTo(jobHelper.nextNamespaces().get(0));
+    assertThat(jobHelper.nextNamespaces().get(0))
+        .describedAs("Next job name")
+        .isEqualTo(jobHelper.prevNamespaces().get(0));
   }
 
   @ParameterizedTest

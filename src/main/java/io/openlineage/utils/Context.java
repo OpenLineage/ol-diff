@@ -160,7 +160,10 @@ public class Context {
             .collect(Collectors.toList());
 
     if (prevUuids.size() != nextUuids.size()) {
-      log.warn("Different number of spark actions in the previous and next run: {} {}", prevUuids, nextUuids);
+      log.warn(
+          "Different number of spark actions in the previous and next run: {} {}",
+          prevUuids,
+          nextUuids);
       return Collections.emptyList();
     }
 
@@ -183,8 +186,7 @@ public class Context {
     if (!config.isExcludeApplicationEvents()) {
       return Collections.emptyList();
     }
-    return events
-        .stream()
+    return events.stream()
         .map(RunEvent::getRun)
         .map(Run::getFacets)
         .filter(Objects::nonNull)
