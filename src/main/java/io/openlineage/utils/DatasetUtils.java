@@ -1,8 +1,9 @@
 package io.openlineage.utils;
 
 import io.openlineage.client.OpenLineage.Dataset;
-import io.openlineage.client.OpenLineage.SymlinksDatasetFacet;
-import io.openlineage.client.OpenLineage.SymlinksDatasetFacetIdentifiers;
+import io.openlineage.client.utils.DatasetIdentifier;
+import io.openlineage.client.utils.DatasetIdentifier.Symlink;
+import io.openlineage.client.utils.DatasetIdentifier.SymlinkType;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -10,11 +11,18 @@ import lombok.EqualsAndHashCode;
 
 public class DatasetUtils {
 
+  public static boolean areSameName(Dataset o1, Dataset o2) {
+    DatasetIdentifier o1Identifier = toDatasetIdentifier(o1);
+    DatasetIdentifier o2Identifier = toDatasetIdentifier(o2);
+
+    return areSameName(o1Identifier, o2Identifier);
+  }
+
   /**
    * Checks if two datasets have the same name. Datasets are the same if they have the same dataset
    * identifier or any of their symlinks are the same.
    */
-  public static boolean areSameName(Dataset o1, Dataset o2) {
+  public static boolean areSameName(DatasetIdentifier o1, DatasetIdentifier o2) {
     Set<DatasetName> o1Names = namesFrom(o1);
     Set<DatasetName> o2Names = namesFrom(o2);
 
@@ -23,16 +31,33 @@ public class DatasetUtils {
     return !intersection.isEmpty();
   }
 
-  private static Set<DatasetName> namesFrom(Dataset dataset) {
+  public static DatasetIdentifier toDatasetIdentifier(Dataset dataset) {
+    DatasetIdentifier identifier = new DatasetIdentifier(dataset.getName(), dataset.getNamespace());
+
+    if (dataset.getFacets() != null
+        && dataset.getFacets().getSymlinks() != null
+        && dataset.getFacets().getSymlinks().getIdentifiers() != null) {
+      dataset
+          .getFacets()
+          .getSymlinks()
+          .getIdentifiers()
+          .forEach(
+              s -> {
+                identifier.withSymlink(
+                    s.getName(), s.getNamespace(), SymlinkType.valueOf(s.getType()));
+              });
+    }
+
+    return identifier;
+  }
+
+  private static Set<DatasetName> namesFrom(DatasetIdentifier dataset) {
     Set<DatasetName> names = new HashSet<>();
     names.add(new DatasetName(dataset.getNamespace(), dataset.getName()));
 
-    if (dataset.getFacets() != null && dataset.getFacets().getSymlinks() != null) {
-      SymlinksDatasetFacet symlinksFacet = dataset.getFacets().getSymlinks();
-      if (symlinksFacet.getIdentifiers() != null) {
-        for (SymlinksDatasetFacetIdentifiers identifier : symlinksFacet.getIdentifiers()) {
-          names.add(new DatasetName(identifier.getNamespace(), identifier.getName()));
-        }
+    if (dataset.getSymlinks() != null) {
+      for (Symlink identifier : dataset.getSymlinks()) {
+        names.add(new DatasetName(identifier.getNamespace(), identifier.getName()));
       }
     }
 

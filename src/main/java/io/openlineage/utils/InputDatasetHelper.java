@@ -39,8 +39,7 @@ public class InputDatasetHelper {
         .filter(e -> sparkActionId.prevRunId.equals(e.getRun().getRunId()))
         .map(RunEvent::getInputs)
         .flatMap(List::stream)
-        .filter(d -> d.getNamespace().equals(identifier.getNamespace()))
-        .filter(d -> d.getName().equals(identifier.getName()))
+        .filter(d -> DatasetUtils.areSameName(DatasetUtils.toDatasetIdentifier(d), identifier))
         .collect(Collectors.toList());
   }
 
@@ -50,8 +49,7 @@ public class InputDatasetHelper {
         .filter(e -> sparkActionId.nextRunId.equals(e.getRun().getRunId()))
         .map(RunEvent::getInputs)
         .flatMap(List::stream)
-        .filter(d -> d.getNamespace().equals(identifier.getNamespace()))
-        .filter(d -> d.getName().equals(identifier.getName()))
+        .filter(d -> DatasetUtils.areSameName(DatasetUtils.toDatasetIdentifier(d), identifier))
         .collect(Collectors.toList());
   }
 
@@ -83,7 +81,7 @@ public class InputDatasetHelper {
         .filter(e -> e.getRun() != null)
         .filter(e -> sparkActionId.prevRunId.equals(e.getRun().getRunId()))
         .flatMap(i -> i.getInputs().stream())
-        .map(d -> new DatasetIdentifier(d.getName(), d.getNamespace()))
+        .map(DatasetUtils::toDatasetIdentifier)
         .collect(Collectors.toSet());
   }
 
